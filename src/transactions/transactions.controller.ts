@@ -67,8 +67,54 @@ export class TransactionsController {
         }
     }
 
+    @ApiOperation({ summary: 'Get account transactions' })
+    @ApiResponse({
+        status: HttpStatus.OK,
+        example: [
+            {
+                id: '123e4567-e89b-12d3-a456-426655440000',
+                accountId: '123e4567-e89b-12d3-a456-426655440000',
+                amount: 100,
+                type: 'DEPOSIT',
+                createdAt: '2023-08-01T00:00:00.000Z',
+            },
+        ],
+        description: 'Account transactions',
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_FOUND,
+        example: {
+            statusCode: 404,
+            timestamp: '2025-06-30T19:04:05.003Z',
+            path: '/transactions/123e4567-e89b-12d3-a456-426655440000',
+            message: 'Transaction not found',
+        },
+        description: 'Transaction not found',
+    })
+    @ApiResponse({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        example: {
+            statusCode: 500,
+            timestamp: '2025-06-30T19:04:05.003Z',
+            path: '/transactions/123e4567-e89b-12d3-a456-426655440000',
+            message: 'Transaction retrieval failed',
+        },
+        description: 'Transaction retrieval failed',
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        example: {
+            statusCode: 400,
+            timestamp: '2025-06-30T19:04:05.003Z',
+            path: '/transactions/123e4567-e89b-12d3-a456-426655440000',
+            message: 'Invalid transaction ID format',
+        },
+        description: 'Invalid transaction ID format',
+    })
     @Get(':accountId')
-    async getTransactions(@Param('accountId') accountId: string): Promise<Transaction[]> {
+    async getTransactions(
+        @Param('accountId') accountId: string,
+    ): Promise<Transaction[]> {
         if (!validate(accountId)) {
             throw new BadRequestException('Invalid transaction ID format');
         }
