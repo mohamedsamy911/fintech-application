@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AccountsController } from './accounts.controller';
 import { AccountsService } from './accounts.service';
 import { Account } from './entities/accounts.entity';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 describe('AccountsController', () => {
   let controller: AccountsController;
@@ -65,5 +65,17 @@ describe('AccountsController', () => {
     await expect(
       controller.getBalance('af7e6925-4f35-4795-943b-7d771b60f787'),
     ).rejects.toThrow('Account balance check failed');
+  });
+
+    it('should throw BadRequestException for invalid UUID format', async () => {
+    const invalidId = 'not-a-uuid';
+    await expect(controller.getBalance(invalidId)).rejects.toThrow(BadRequestException);
+  });
+
+  it('should throw InternalServerErrorException on unexpected error', async () => {
+    const validUuid = 'af7e6925-4f35-4795-943b-7d771b60f787';
+    jest.spyOn(service, 'checkBalance').mockRejectedValue(new Error('unexpected'));
+
+    await expect(controller.getBalance(validUuid)).rejects.toThrow(InternalServerErrorException);
   });
 });

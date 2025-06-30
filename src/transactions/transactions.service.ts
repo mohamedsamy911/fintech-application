@@ -66,7 +66,6 @@ export class TransactionsService {
                         accountId,
                         amount,
                         type,
-                        balanceAfter: account.balance,
                     });
 
                     this.logger.log(
@@ -77,10 +76,11 @@ export class TransactionsService {
                 } catch (error) {
                     if (error instanceof HttpException) throw error;
                     this.logger.error('Unexpected error during transaction', error);
-                    throw new InternalServerErrorException('Transaction processing failed');
+                    throw new InternalServerErrorException(
+                        'Transaction processing failed',
+                    );
                 }
             },
         );
     }
-
 }
