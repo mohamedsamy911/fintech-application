@@ -40,11 +40,11 @@ npm install
 Create a `.env` file:
 
 ```env
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_USER=postgres
-DATABASE_PASSWORD=postgres
-DATABASE_NAME=fintech
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=postgres
+DB_PASSWORD=postgres
+DB_NAME=fintech
 ```
 
 ---
@@ -77,6 +77,11 @@ npm run test:cov
 ```bash
 docker build -t nestjs-fintech .
 docker run -p 3000:3000 nestjs-fintech
+```
+
+### Run with Docker Compose
+```bash
+docker compose up -d
 ```
 
 ---
