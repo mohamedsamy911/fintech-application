@@ -3,7 +3,7 @@ import { TransactionsService, TransactionType } from './transactions.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Transaction } from './entities/transactions.entity';
 import { Account } from '../accounts/entities/accounts.entity';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
 describe('TransactionsService', () => {
   let service: TransactionsService;
@@ -33,6 +33,7 @@ describe('TransactionsService', () => {
     manager: {
       transaction: jest.fn(),
     },
+    findBy: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -112,5 +113,21 @@ describe('TransactionsService', () => {
 
     expect(result).toEqual(mockTransaction);
     expect(mockEntityManager.save).toHaveBeenCalledTimes(2);
+  });
+
+  it('should return transactions for account', async () => {
+    mockRepo.findBy.mockResolvedValueOnce([mockTransaction]);
+    const result = await mockRepo.findBy('acc-1');
+    expect(result).toEqual([mockTransaction]);
+  });
+
+  it('should throw if transaction not found', async () => {
+    mockRepo.findBy.mockRejectedValueOnce(new NotFoundException());
+    await expect(mockRepo.findBy('acc-1')).rejects.toThrow(NotFoundException);
+  });
+
+  it('should throw if retrieval fails', async () => {
+    mockRepo.findBy.mockRejectedValueOnce(new InternalServerErrorException());
+    await expect(mockRepo.findBy('acc-1')).rejects.toThrow(InternalServerErrorException);
   });
 });

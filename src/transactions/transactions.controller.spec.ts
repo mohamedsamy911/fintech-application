@@ -24,6 +24,7 @@ describe('TransactionsController', () => {
 
   const mockService = {
     createTransaction: jest.fn().mockResolvedValue(mockTransaction),
+    getTransactions: jest.fn().mockResolvedValue([mockTransaction]),
   };
 
   beforeEach(async () => {
@@ -54,9 +55,11 @@ describe('TransactionsController', () => {
       amount: -200,
       type: TransactionType.DEPOSIT,
     };
-    jest.spyOn(service, 'createTransaction').mockRejectedValueOnce(new BadRequestException());
+    jest
+      .spyOn(service, 'createTransaction')
+      .mockRejectedValueOnce(new BadRequestException());
     await expect(controller.createTransaction(dto)).rejects.toThrow(
-      BadRequestException
+      BadRequestException,
     );
   });
 
@@ -66,9 +69,11 @@ describe('TransactionsController', () => {
       amount: 200,
       type: TransactionType.DEPOSIT,
     };
-    jest.spyOn(service, 'createTransaction').mockRejectedValueOnce(new NotFoundException());
+    jest
+      .spyOn(service, 'createTransaction')
+      .mockRejectedValueOnce(new NotFoundException());
     await expect(controller.createTransaction(dto)).rejects.toThrow(
-      NotFoundException
+      NotFoundException,
     );
   });
 
@@ -78,12 +83,14 @@ describe('TransactionsController', () => {
       amount: 1000,
       type: TransactionType.WITHDRAWAL,
     };
-    jest.spyOn(service, 'createTransaction').mockRejectedValueOnce(new BadRequestException());
+    jest
+      .spyOn(service, 'createTransaction')
+      .mockRejectedValueOnce(new BadRequestException());
     await expect(controller.createTransaction(dto)).rejects.toThrow(
-      BadRequestException
+      BadRequestException,
     );
   });
-  
+
   it('should throw internal error on transaction creation failure', async () => {
     jest.spyOn(service, 'createTransaction').mockRejectedValueOnce(new Error());
     const dto: CreateTransactionDto = {
@@ -93,6 +100,53 @@ describe('TransactionsController', () => {
     };
     await expect(controller.createTransaction(dto)).rejects.toThrow(
       'Transaction processing failed',
+    );
+  });
+
+  it('should return account transactions', async () => {
+    const accountId = 'af7e6925-4f35-4795-943b-7d771b60f775';
+    const transactions = [
+      {
+        id: 'af7e6925-4f35-4795-943b-7d771b60f787',
+        accountId,
+        amount: 100,
+        type: TransactionType.DEPOSIT,
+        createdAt: new Date(),
+        account: {
+          id: accountId,
+          balance: 100,
+          createdAt: new Date(),
+        },
+      },
+      {
+        id: 'af7e6925-4f35-4795-943b-7d771b60f786',
+        accountId,
+        amount: 200,
+        type: TransactionType.WITHDRAWAL,
+        createdAt: new Date(),
+        account: {
+          id: accountId,
+          balance: 200,
+          createdAt: new Date(),
+        },
+      },
+    ];
+    jest.spyOn(service, 'getTransactions').mockResolvedValue(transactions);
+    const result = await controller.getTransactions(accountId);
+    expect(result).toEqual(transactions);
+  });
+
+  it('should return 404 when account transactions not found', async () => {
+    const accountId = 'af7e6925-4f35-4795-943b-7d771b60f781';
+    jest.spyOn(service, 'getTransactions').mockRejectedValueOnce(new NotFoundException());
+    await expect(controller.getTransactions(accountId)).rejects.toThrow(NotFoundException);
+  });
+
+  it('should return 500 when transaction retrieval fails', async () => {
+    const accountId = 'af7e6925-4f35-4795-943b-7d771b60f782';
+    jest.spyOn(service, 'getTransactions').mockRejectedValueOnce(new Error());
+    await expect(controller.getTransactions(accountId)).rejects.toThrow(
+      'Transaction retrieval failed',
     );
   });
 });
