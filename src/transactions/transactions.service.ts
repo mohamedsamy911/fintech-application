@@ -83,4 +83,23 @@ export class TransactionsService {
             },
         );
     }
+
+    public async getTransactions(accountId: string): Promise<Transaction[]> {
+        try {
+            const transaction = await this.transactionsRepository.findBy({
+                accountId,
+            });
+            if (!transaction || transaction.length === 0) {
+                this.logger.error(`Transaction not found for account: ${accountId}`);
+                throw new NotFoundException('Transaction not found');
+            }
+            return transaction;
+        } catch (error) {
+            this.logger.error('Failed to retrieve transaction', error);
+            if (error instanceof NotFoundException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Transaction retrieval failed');
+        }
+    }
 }

@@ -1,15 +1,19 @@
 import {
+    BadRequestException,
     Body,
     Controller,
+    Get,
     HttpException,
     HttpStatus,
     InternalServerErrorException,
+    Param,
     Post,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { Transaction } from './entities/transactions.entity';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { validate } from 'uuid';
 
 @Controller('transactions')
 export class TransactionsController {
@@ -60,6 +64,21 @@ export class TransactionsController {
                 throw error;
             }
             throw new InternalServerErrorException('Transaction processing failed');
+        }
+    }
+
+    @Get(':accountId')
+    async getTransactions(@Param('accountId') accountId: string): Promise<Transaction[]> {
+        if (!validate(accountId)) {
+            throw new BadRequestException('Invalid transaction ID format');
+        }
+        try {
+            return await this.transactionsService.getTransactions(accountId);
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Transaction retrieval failed');
         }
     }
 }
