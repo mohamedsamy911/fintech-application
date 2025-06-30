@@ -19,6 +19,19 @@ This is a **NestJS-based backend service** for a simple fintech application. It 
 
 ---
 
+## ✨ Design Considerations
+
+### Why `pessimistic_write` was used
+To ensure consistency during concurrent transactions, `pessimistic_write` locking is used when fetching an account. This prevents race conditions like two withdrawals reducing balance below zero simultaneously.
+
+### Why DTO validation was layered
+DTOs use `class-validator` decorators (e.g., `@IsUUID`, `@IsIn`, `@IsNumber`) to enforce input constraints before they reach the business logic. This centralizes validation and simplifies controller code.
+
+### How exceptions are caught and surfaced
+The service methods throw meaningful `HttpException`s like `BadRequestException` and `NotFoundException`. These are caught in controllers and re-thrown if needed. Unexpected errors are wrapped in a generic `InternalServerErrorException` to avoid leaking internal details.
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
