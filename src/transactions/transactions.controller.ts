@@ -19,6 +19,22 @@ import { validate } from 'uuid';
 export class TransactionsController {
     constructor(private readonly transactionsService: TransactionsService) { }
 
+    /**
+     * POST /transactions
+     *
+     * Handles creation of a new transaction (DEPOSIT or WITHDRAWAL).
+     * Delegates actual processing to the service layer which:
+     * - Validates amount
+     * - Locks and updates account balance
+     * - Creates a transaction record
+     *
+     * Swagger decorators define API contract and response structure for documentation.
+     *
+     * @param createTransactionDto DTO with accountId, amount, type
+     * @returns The newly created Transaction
+     * @throws BadRequestException if input is invalid or logic fails (e.g. insufficient funds)
+     * @throws InternalServerErrorException for unexpected server errors
+     */
     @ApiOperation({ summary: 'Create a new transaction' })
     @ApiResponse({
         status: HttpStatus.CREATED,
@@ -60,13 +76,30 @@ export class TransactionsController {
                 createTransactionDto,
             );
         } catch (error) {
+            // Forward any known HttpExceptions thrown by the service
             if (error instanceof HttpException) {
                 throw error;
             }
+
+            // Wrap any unexpected error
             throw new InternalServerErrorException('Transaction processing failed');
         }
     }
 
+    /**
+     * GET /transactions/:accountId
+     *
+     * Returns all transactions associated with the given account UUID.
+     * Validates UUID before calling the service method to retrieve transactions.
+     *
+     *  Swagger decorators define API contract and response structure for documentation.
+     *
+     * @param accountId UUID string of the account
+     * @returns An array of transactions, ordered from newest to oldest
+     * @throws NotFoundException if account has no transactions.
+     * @throws BadRequestException if the provided accountId is not a valid UUID v4.
+     * @throws InternalServerErrorException for unexpected server errors
+     */
     @ApiOperation({ summary: 'Get account transactions' })
     @ApiResponse({
         status: HttpStatus.OK,
@@ -115,15 +148,19 @@ export class TransactionsController {
     async getTransactions(
         @Param('accountId') accountId: string,
     ): Promise<Transaction[]> {
+        // Validate UUID format before passing it to the service
         if (!validate(accountId)) {
             throw new BadRequestException('Invalid transaction ID format');
         }
         try {
             return await this.transactionsService.getTransactions(accountId);
         } catch (error) {
+            // Re-throw known HttpExceptions
             if (error instanceof HttpException) {
                 throw error;
             }
+
+            // Wrap any unexpected error
             throw new InternalServerErrorException('Transaction retrieval failed');
         }
     }
