@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   api:
+    container_name: fintech-application
     build: .
     ports:
       - '3001:3000'
@@ -16,6 +17,7 @@ services:
     restart: unless-stopped
 
   db:
+    container_name: fintech-db
     image: postgres:15
     environment:
       - POSTGRES_DB=nest_fintech
@@ -23,4 +25,9 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5433:5432'
+    volumes:
+      - db_storage:/var/lib/postgresql/data
     restart: unless-stopped
+
+volumes:
+  db_storage:
