@@ -137,7 +137,7 @@ describe('TransactionsService', () => {
     mockRepo.manager.transaction.mockImplementationOnce(async (cb) => {
       mockEntityManager.findOne.mockResolvedValueOnce(mockAccount);
       mockEntityManager.save
-        .mockResolvedValueOnce(savedAccount) 
+        .mockResolvedValueOnce(savedAccount)
         .mockResolvedValueOnce(savedTransaction);
       mockEntityManager.create.mockReturnValueOnce(savedTransaction);
 
@@ -163,6 +163,26 @@ describe('TransactionsService', () => {
     });
 
     await expect(service.createTransaction(dto)).rejects.toThrow('Insufficient funds');
+  });
+
+  it('should throw InternalServerErrorException if an unknown error occurs inside transaction', async () => {
+    const dto = {
+      accountId: 'acc-id',
+      amount: 100,
+      type: TransactionType.DEPOSIT,
+    };
+
+    mockRepo.manager.transaction.mockImplementationOnce(async (cb) => {
+      return cb({
+        findOne: () => {
+          throw new Error('Some unexpected error');
+        },
+        save: jest.fn(),
+        create: jest.fn(),
+      });
+    });
+
+    await expect(service.createTransaction(dto)).rejects.toThrow(InternalServerErrorException);
   });
 
   it('should return transactions for account', async () => {
