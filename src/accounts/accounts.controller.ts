@@ -70,7 +70,7 @@ export class AccountsController {
         example: {
             statusCode: 400,
             timestamp: '2025-06-30T19:04:05.003Z',
-            path: '/accounts/af7e6925-4f35-4795-943b-7d771b60f787',
+            path: '/accounts/af7e6925-4f35-4795-943b-7d771b60f78',
             message: 'Invalid account ID format',
         },
         description: 'Invalid account ID format'

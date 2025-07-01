@@ -106,7 +106,7 @@ export class TransactionsController {
         example: {
             statusCode: 400,
             timestamp: '2025-06-30T19:04:05.003Z',
-            path: '/transactions/123e4567-e89b-12d3-a456-426655440000',
+            path: '/transactions/123e4567-e89b-12d3-a456-42665544000',
             message: 'Invalid transaction ID format',
         },
         description: 'Invalid transaction ID format',
