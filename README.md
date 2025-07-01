@@ -5,6 +5,7 @@ This is a **NestJS-based backend service** for a simple fintech application. It 
 - ✅ Create a new account
 - 💰 Deposit or withdraw money
 - 📊 Check account balance
+- 📝 Check account transactions history
 
 ---
 
@@ -101,11 +102,12 @@ docker compose up -d
 
 ## 🧭 API Endpoints
 
-| Method | Endpoint             | Description            |
-|--------|----------------------|------------------------|
-| POST   | `/accounts`          | Create a new account   |
-| GET    | `/accounts/:id`      | Check account balance  |
-| POST   | `/transactions`      | Create a transaction   |
+| Method | Endpoint                        | Description                       |
+|--------|---------------------------------|-----------------------------------|
+| POST   | `/accounts`                     | Create a new account              |
+| GET    | `/accounts/:id`                 | Check account balance             |
+| POST   | `/transactions`                 | Create a transaction              |
+| GET    | `/transactions/:accountId`      | Check account transaction history |
 
 #### Sample Transaction Request
 ```json
@@ -134,7 +136,7 @@ docker compose up -d
 ---
 
 ## 🙌 Author
-- Your Name
+- Mohamed Samy
 - [GitHub Profile](https://github.com/mohamedsamy911)
 
 ---
