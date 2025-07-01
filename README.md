@@ -54,6 +54,7 @@ npm install
 Create a `.env` file:
 
 ```env
+PORT=3000 #(optional) server default port is 3000
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
