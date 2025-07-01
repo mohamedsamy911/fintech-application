@@ -86,8 +86,9 @@ export class TransactionsService {
 
     public async getTransactions(accountId: string): Promise<Transaction[]> {
         try {
-            const transaction = await this.transactionsRepository.findBy({
-                accountId,
+            const transaction = await this.transactionsRepository.find({
+                where: { accountId },
+                order: { createdAt: 'DESC' },
             });
             if (!transaction || transaction.length === 0) {
                 this.logger.error(`Transaction not found for account: ${accountId}`);
