@@ -15,6 +15,14 @@ import { Transaction } from './entities/transactions.entity';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { validate } from 'uuid';
 
+/**
+ * Controller that handles HTTP endpoints for account transaction operations.
+ * Exposes routes to:
+ * - Create new transactions (DEPOSIT or WITHDRAWAL)
+ * - Get account transaction history
+ *
+ * @credit Built using NestJS's standard controller and decorator system.
+ */
 @Controller('transactions')
 export class TransactionsController {
     constructor(private readonly transactionsService: TransactionsService) { }
