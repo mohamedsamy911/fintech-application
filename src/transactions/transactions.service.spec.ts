@@ -115,6 +115,56 @@ describe('TransactionsService', () => {
     expect(mockEntityManager.save).toHaveBeenCalledTimes(2);
   });
 
+  it('should successfully withdraw funds from an account', async () => {
+    const dto = {
+      accountId: 'acc-id',
+      amount: 100,
+      type: TransactionType.WITHDRAWAL,
+    };
+
+    const mockAccount = { id: 'acc-id', balance: 200, createdAt: new Date() };
+    const savedAccount = { ...mockAccount, balance: 100 };
+    const savedTransaction = {
+      id: 'txn-id',
+      accountId: 'acc-id',
+      amount: 100,
+      type: TransactionType.WITHDRAWAL,
+      createdAt: new Date(),
+      balanceAfter: 100,
+      account: mockAccount,
+    };
+
+    mockRepo.manager.transaction.mockImplementationOnce(async (cb) => {
+      mockEntityManager.findOne.mockResolvedValueOnce(mockAccount);
+      mockEntityManager.save
+        .mockResolvedValueOnce(savedAccount) 
+        .mockResolvedValueOnce(savedTransaction);
+      mockEntityManager.create.mockReturnValueOnce(savedTransaction);
+
+      return cb(mockEntityManager);
+    });
+
+    const result = await service.createTransaction(dto);
+    expect(result).toEqual(savedTransaction);
+  });
+
+  it('should throw BadRequestException if balance is insufficient for withdrawal', async () => {
+    const dto = {
+      accountId: 'acc-id',
+      amount: 1000,
+      type: TransactionType.WITHDRAWAL,
+    };
+
+    const mockAccount = { id: 'acc-id', balance: 500, createdAt: new Date() };
+
+    mockRepo.manager.transaction.mockImplementationOnce(async (cb) => {
+      mockEntityManager.findOne.mockResolvedValueOnce(mockAccount);
+      return cb(mockEntityManager);
+    });
+
+    await expect(service.createTransaction(dto)).rejects.toThrow('Insufficient funds');
+  });
+
   it('should return transactions for account', async () => {
     mockRepo.findBy.mockResolvedValueOnce([mockTransaction]);
     const result = await mockRepo.findBy('acc-1');

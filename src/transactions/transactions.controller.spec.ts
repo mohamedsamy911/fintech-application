@@ -49,6 +49,35 @@ describe('TransactionsController', () => {
     expect(service.createTransaction).toHaveBeenCalledWith(dto);
   });
 
+  it('should create a successful withdrawal transaction', async () => {
+    const dto = {
+      accountId: 'acc-id',
+      amount: 50,
+      type: TransactionType.WITHDRAWAL,
+    };
+
+    mockService.createTransaction.mockResolvedValueOnce(mockTransaction);
+    const result = await controller.createTransaction(dto);
+    expect(result).toEqual(mockTransaction);
+    expect(service.createTransaction).toHaveBeenCalledWith(dto);
+  });
+
+  it('should throw BadRequestException if funds are insufficient', async () => {
+    const dto = {
+      accountId: 'acc-id',
+      amount: 1000,
+      type: TransactionType.WITHDRAWAL,
+    };
+
+    mockService.createTransaction.mockRejectedValueOnce(
+      new BadRequestException('Insufficient funds'),
+    );
+
+    await expect(controller.createTransaction(dto)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
   it('should throw bad request error on invalid transaction amount', async () => {
     const dto: CreateTransactionDto = {
       accountId: 'acc-id',
