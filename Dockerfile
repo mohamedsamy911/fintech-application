@@ -27,9 +27,6 @@ RUN npm install --only=production
 # Copy built files from builder stage
 COPY --from=builder /app/dist ./dist
 
-# Copy other necessary files (optional, if you use Swagger, etc.)
-COPY --from=builder /app/swagger ./swagger
-
 # Set environment variables
 ENV NODE_ENV=production
 
