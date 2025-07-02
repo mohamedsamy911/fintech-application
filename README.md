@@ -31,6 +31,9 @@ DTOs use `class-validator` decorators (e.g., `@IsUUID`, `@IsIn`, `@IsNumber`) to
 ### How exceptions are caught and surfaced
 The service methods throw meaningful `HttpException`s like `BadRequestException` and `NotFoundException`. These are caught in controllers and re-thrown if needed. Unexpected errors are wrapped in a generic `InternalServerErrorException` to avoid leaking internal details.
 
+### Why rate limiting was implemented
+Rate limiting helps mitigate brute force and DoS attacks by restricting request rate. This application uses the `ThrottlerModule` from `@nestjs/throttler` to implement rate limiting. For more information, see the [official documentation](https://docs.nestjs.com/security/rate-limiting).
+
 ---
 
 ## 🚀 Getting Started
